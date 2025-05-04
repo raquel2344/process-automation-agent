@@ -18,10 +18,6 @@ followup_handler = FollowUpHandler()
 documentation_handler = DocumentationHandler()
 notifier = Notifier(notification_service=None)  # Replace with an actual notification service if required
 
-@app.route("/")
-def home():
-    return render_template("index.html")
-
 @app.route("/nlp", methods=["POST"])
 def nlp_handler():
     """
@@ -97,6 +93,3 @@ def nlp_handler():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
-if __name__ == "__main__":
-    app.run(debug=True)
