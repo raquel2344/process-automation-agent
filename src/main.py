@@ -13,7 +13,7 @@ GOOGLE_CALENDAR_API_KEY = os.getenv("GOOGLE_CALENDAR_API_KEY")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 # Initialize integrations
-google_calendar_api = GoogleCalendarAPI(api_key=GOOGLE_CALENDAR_API_KEY)
+google_calendar_api = GoogleCalendarAPI(api_key=AIzaSyBfQb_DgVwhwfzddIQQY_Pc9EPLKBlxhjo)
 openai_api = OpenAIAPI(api_key=OPENAI_API_KEY)
 
 # Initialize core components
