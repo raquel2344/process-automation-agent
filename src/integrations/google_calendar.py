@@ -1,12 +1,20 @@
 from googleapiclient.discovery import build
+from google.oauth2.service_account import Credentials
 
 class GoogleCalendarAPI:
     """
     Integration with the Google Calendar API for scheduling and calendar management.
     """
 
-    def __init__(self, api_key):
-        self.service = build("calendar", "v3", developerKey=api_key)
+    def __init__(self):
+        # Hardcoded path to the Google service account credentials
+        credentials_path = "/Users/raquel/google-credentials.json"
+        
+        # Load service account credentials
+        credentials = Credentials.from_service_account_file(credentials_path)
+        
+        # Initialize the Google Calendar API service
+        self.service = build("calendar", "v3", credentials=credentials)
 
     def create_event(self, event):
         """
