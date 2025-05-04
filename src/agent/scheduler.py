@@ -1,6 +1,6 @@
 import datetime
 
-from api.google_calendar import GoogleCalendarAPI
+from google_calendar import GoogleCalendarAPI
 
 class Scheduler:
     def __init__(self):
