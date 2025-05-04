@@ -14,7 +14,7 @@ google_calendar_api = GoogleCalendarAPI()
 openai_api = OpenAIAPI(api_key=os.getenv("OPENAI_API_KEY"))
 followup_handler = FollowUpHandler()
 documentation_handler = DocumentationHandler()
-notifier = Notifier(notification_service=None)  # Add a notification service as required
+notifier = Notifier(notification_service=None)  # Replace with an actual notification service if required
 
 @app.route("/")
 def home():
