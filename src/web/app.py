@@ -6,6 +6,7 @@ from agent.documentation_handler import DocumentationHandler
 from agent.notifier import Notifier
 from datetime import datetime, timedelta
 import os
+import json
 
 app = Flask(__name__)
 
@@ -36,18 +37,8 @@ def nlp_handler():
             max_tokens=100,
         )
 
-        # Example response expected from the GPT model
-        # {
-        #   "intent": "schedule_meeting",
-        #   "details": {
-        #       "title": "Team Sync",
-        #       "start_time": "2025-05-05T10:00:00",
-        #       "end_time": "2025-05-05T11:00:00",
-        #       "attendees": ["email1@example.com", "email2@example.com"]
-        #   }
-        # }
-
-        parsed_response = eval(response)  # Convert GPT output to dictionary
+        # Parse the GPT response
+        parsed_response = json.loads(response)  # Use json.loads instead of eval
         intent = parsed_response["intent"]
         details = parsed_response.get("details", {})
 
@@ -83,15 +74,4 @@ def nlp_handler():
             followup_task = followup_handler.create_follow_up_task(
                 task_id=details["task_id"],
                 task_details=details["task_details"],
-                due_date=datetime.strptime(details["due_date"], "%Y-%m-%d"),
-            )
-            return jsonify({"message": "Follow-up task created successfully!", "task": followup_task})
-
-        else:
-            return jsonify({"error": "Unknown intent"}), 400
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-if __name__ == "__main__":
-    app.run(debug=True)
+                due_date=datetime
