@@ -11,22 +11,18 @@ import json
 # Initialize the Flask application
 app = Flask(__name__)
 
-# Debugging: Print a message when the app starts
-print("Starting Flask app...")
-
 # Initialize modules
 google_calendar_api = GoogleCalendarAPI()
 openai_api = OpenAIAPI(api_key=os.getenv("OPENAI_API_KEY"))
 followup_handler = FollowUpHandler()
 documentation_handler = DocumentationHandler()
-notifier = Notifier(notification_service=None)  # Replace with an actual notification service if required
+notifier = Notifier(notification_service=None)  # Replace with a real notification service if required
 
 @app.route("/")
 def home():
     """
     Render the homepage.
     """
-    print("Home route accessed")
     return render_template("index.html")
 
 @app.route("/nlp", methods=["POST"])
@@ -34,7 +30,6 @@ def nlp_handler():
     """
     Handle natural language input from the user and execute the appropriate functionality.
     """
-    print("NLP route accessed")
     user_input = request.json.get("message")
     if not user_input:
         return jsonify({"error": "No input provided"}), 400
@@ -46,7 +41,7 @@ def nlp_handler():
             max_tokens=100,
         )
 
-        # Debug: Print the raw OpenAI API response
+        # Debugging: Print the raw OpenAI API response
         print("Raw OpenAI API response:", response)
 
         # Handle empty or invalid responses
@@ -55,16 +50,15 @@ def nlp_handler():
 
         # Parse the GPT response
         try:
-            parsed_response = json.loads(response)  # Use json.loads instead of eval
+            parsed_response = json.loads(response)  # Parse JSON response
         except json.JSONDecodeError:
-            # Log malformed response
             print("Malformed OpenAI API response:", response)
             return jsonify({"error": "Invalid response from OpenAI API", "details": response}), 500
 
         intent = parsed_response.get("intent")
         details = parsed_response.get("details", {})
 
-        # Execute the appropriate functionality based on the intent
+        # Execute functionality based on the intent
         if intent == "schedule_meeting":
             event = {
                 "summary": details["title"],
@@ -107,5 +101,4 @@ def nlp_handler():
         return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
-    # Run the Flask development server
     app.run(debug=True)
