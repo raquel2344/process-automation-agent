@@ -20,79 +20,78 @@ notifier = Notifier(notification_service=None)  # Replace with an actual notific
 def home():
     return render_template("index.html")
 
-@app.route("/schedule", methods=["POST"])
-def schedule_meeting():
-    data = request.form
-    title = data.get("title")
-    start_time = data.get("start_time")
-    end_time = data.get("end_time")
-    attendees = data.get("attendees").split(",")
-    
-    try:
-        # Schedule meeting using Google Calendar API
-        event = {
-            "summary": title,
-            "start": {"dateTime": start_time, "timeZone": "UTC"},
-            "end": {"dateTime": end_time, "timeZone": "UTC"},
-            "attendees": [{"email": email.strip()} for email in attendees],
-        }
-        created_event = google_calendar_api.create_event(event)
-        return jsonify({"message": "Meeting scheduled successfully!", "event": created_event})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 400
-
-@app.route("/reminder", methods=["POST"])
-def send_reminder():
-    data = request.form
-    message = data.get("message")
-    user = data.get("user")
-    time_before_event = int(data.get("time_before_event"))
+@app.route("/nlp", methods=["POST"])
+def nlp_handler():
+    """
+    Handle natural language input from the user and execute the appropriate functionality.
+    """
+    user_input = request.json.get("message")
+    if not user_input:
+        return jsonify({"error": "No input provided"}), 400
 
     try:
-        success = notifier.send_reminder(
-            message=message,
-            user=user,
-            time_before_event=timedelta(minutes=time_before_event),
+        # Use OpenAI API to parse the input
+        response = openai_api.generate_response(
+            prompt=f"Analyze the following command and return the intent and details:\n\n{user_input}",
+            max_tokens=100,
         )
-        return jsonify({"message": "Reminder sent!" if success else "Failed to send reminder."})
+
+        # Example response expected from the GPT model
+        # {
+        #   "intent": "schedule_meeting",
+        #   "details": {
+        #       "title": "Team Sync",
+        #       "start_time": "2025-05-05T10:00:00",
+        #       "end_time": "2025-05-05T11:00:00",
+        #       "attendees": ["email1@example.com", "email2@example.com"]
+        #   }
+        # }
+
+        parsed_response = eval(response)  # Convert GPT output to dictionary
+        intent = parsed_response["intent"]
+        details = parsed_response.get("details", {})
+
+        # Execute the appropriate functionality based on the intent
+        if intent == "schedule_meeting":
+            event = {
+                "summary": details["title"],
+                "start": {"dateTime": details["start_time"], "timeZone": "UTC"},
+                "end": {"dateTime": details["end_time"], "timeZone": "UTC"},
+                "attendees": [{"email": email.strip()} for email in details["attendees"]],
+            }
+            created_event = google_calendar_api.create_event(event)
+            return jsonify({"message": "Meeting scheduled successfully!", "event": created_event})
+
+        elif intent == "send_reminder":
+            success = notifier.send_reminder(
+                message=details["message"],
+                user=details["user"],
+                time_before_event=timedelta(minutes=details.get("time_before_event", 10)),
+            )
+            return jsonify({"message": "Reminder sent!" if success else "Failed to send reminder."})
+
+        elif intent == "prepare_documentation":
+            notes = documentation_handler.generate_meeting_notes(
+                title=details["title"],
+                attendees=details["attendees"],
+                topics_discussed=details["topics_discussed"],
+                action_items=details["action_items"],
+            )
+            return jsonify({"message": "Documentation prepared successfully!", "notes": notes})
+
+        elif intent == "create_followup":
+            followup_task = followup_handler.create_follow_up_task(
+                task_id=details["task_id"],
+                task_details=details["task_details"],
+                due_date=datetime.strptime(details["due_date"], "%Y-%m-%d"),
+            )
+            return jsonify({"message": "Follow-up task created successfully!", "task": followup_task})
+
+        else:
+            return jsonify({"error": "Unknown intent"}), 400
+
     except Exception as e:
-        return jsonify({"error": str(e)}), 400
-
-@app.route("/document", methods=["POST"])
-def prepare_documentation():
-    data = request.form
-    title = data.get("title")
-    attendees = data.get("attendees").split(",")
-    topics_discussed = data.get("topics_discussed").split(",")
-    action_items = data.get("action_items").split(",")
-
-    try:
-        notes = documentation_handler.generate_meeting_notes(
-            title=title,
-            attendees=attendees,
-            topics_discussed=topics_discussed,
-            action_items=action_items,
-        )
-        return jsonify({"message": "Documentation prepared successfully!", "notes": notes})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 400
-
-@app.route("/followup", methods=["POST"])
-def create_followup():
-    data = request.form
-    task_id = data.get("task_id")
-    task_details = data.get("task_details")
-    due_date = data.get("due_date")
-
-    try:
-        followup_task = followup_handler.create_follow_up_task(
-            task_id=task_id,
-            task_details=task_details,
-            due_date=datetime.strptime(due_date, "%Y-%m-%d"),
-        )
-        return jsonify({"message": "Follow-up task created successfully!", "task": followup_task})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 400
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
     app.run(debug=True)
