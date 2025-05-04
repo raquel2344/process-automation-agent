@@ -1,25 +1,8 @@
 class FollowUpHandler:
-    def __init__(self):
-        self.follow_up_logs = {}
-
     def create_follow_up_task(self, task_id, task_details, due_date):
-        """
-        Creates a follow-up task.
-
-        Args:
-          task_id (str): Unique ID for the task.
-          task_details (str): Description of the follow-up task.
-          due_date (datetime): Due date for the task.
-
-        Returns:
-          dict: Details of the created follow-up task.
-        """
-        self.follow_up_logs[task_id] = {
-            "details": task_details,
-            "due_date": due_date,
-            "status": "pending",
-        }
-        return self.follow_up_logs[task_id]
+        print(f"Creating follow-up task: {task_id}, {task_details}, {due_date}")
+        # Simulated response
+        return {"task_id": task_id, "status": "created"}
 
     def mark_task_complete(self, task_id):
         """
