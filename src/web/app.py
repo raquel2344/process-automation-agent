@@ -1,27 +1,3 @@
-from flask import Flask, render_template, request, jsonify
-from integrations.google_calendar import GoogleCalendarAPI
-from integrations.openai_api import OpenAIAPI
-from agent.followup_handler import FollowUpHandler
-from agent.documentation_handler import DocumentationHandler
-from agent.notifier import Notifier
-from datetime import datetime, timedelta
-import os
-import json
-
-# Initialize the Flask application
-app = Flask(__name__)
-
-# Initialize modules
-google_calendar_api = GoogleCalendarAPI()
-openai_api = OpenAIAPI(api_key=os.getenv("OPENAI_API_KEY"))
-followup_handler = FollowUpHandler()
-documentation_handler = DocumentationHandler()
-notifier = Notifier(notification_service=None)  # Replace with an actual notification service if required
-
-@app.route("/")
-def home():
-    return render_template("index.html")
-
 @app.route("/nlp", methods=["POST"])
 def nlp_handler():
     """
@@ -38,8 +14,8 @@ def nlp_handler():
             max_tokens=100,
         )
 
-        # Debug: Print the OpenAI API response
-        print("OpenAI API response:", response)
+        # Debug: Print the raw OpenAI API response
+        print("Raw OpenAI API response:", response)
 
         # Handle empty or invalid responses
         if not response:
@@ -49,7 +25,9 @@ def nlp_handler():
         try:
             parsed_response = json.loads(response)  # Use json.loads instead of eval
         except json.JSONDecodeError:
-            return jsonify({"error": "Invalid response from OpenAI API"}), 500
+            # Log malformed response
+            print("Malformed OpenAI API response:", response)
+            return jsonify({"error": "Invalid response from OpenAI API", "details": response}), 500
 
         intent = parsed_response["intent"]
         details = parsed_response.get("details", {})
@@ -95,6 +73,3 @@ def nlp_handler():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
-if __name__ == "__main__":
-    app.run(debug=True)
