@@ -1,3 +1,27 @@
+from flask import Flask, render_template, request, jsonify
+from integrations.google_calendar import GoogleCalendarAPI
+from integrations.openai_api import OpenAIAPI
+from agent.followup_handler import FollowUpHandler
+from agent.documentation_handler import DocumentationHandler
+from agent.notifier import Notifier
+from datetime import datetime, timedelta
+import os
+import json
+
+# Initialize the Flask application
+app = Flask(__name__)
+
+# Initialize modules
+google_calendar_api = GoogleCalendarAPI()
+openai_api = OpenAIAPI(api_key=os.getenv("OPENAI_API_KEY"))
+followup_handler = FollowUpHandler()
+documentation_handler = DocumentationHandler()
+notifier = Notifier(notification_service=None)  # Replace with an actual notification service if required
+
+@app.route("/")
+def home():
+    return render_template("index.html")
+
 @app.route("/nlp", methods=["POST"])
 def nlp_handler():
     """
@@ -73,3 +97,6 @@ def nlp_handler():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+if __name__ == "__main__":
+    app.run(debug=True)
