@@ -8,11 +8,11 @@ from integrations.openai_api import OpenAIAPI
 import os
 from datetime import datetime, timedelta
 
-# Initialize integrations with hardcoded API keys
-GOOGLE_CALENDAR_API_KEY = "AIzaSyBfQb_DgVwhwfzddIQQY_Pc9EPLKBlxhjo"
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")  # Still loading OpenAI API key from environment variables
+# Load OpenAI API key from environment variables
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
-google_calendar_api = GoogleCalendarAPI(api_key=GOOGLE_CALENDAR_API_KEY)
+# Initialize integrations
+google_calendar_api = GoogleCalendarAPI()  # No arguments needed now
 openai_api = OpenAIAPI(api_key=OPENAI_API_KEY)
 
 # Initialize core components
