@@ -4,20 +4,50 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Process Automation Agent</title>
-    <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
-    <header>
-        <h1>Process Automation Agent</h1>
-    </header>
-    <main>
-        <section>
-            <h2>Welcome!</h2>
-            <p>Use this interface to schedule meetings, send notifications, manage follow-ups, and generate documentation.</p>
-        </section>
-    </main>
-    <footer>
-        <p>&copy; 2025 Process Automation Agent</p>
-    </footer>
+    <h1>Process Automation Agent</h1>
+
+    <section>
+        <h2>Schedule a Meeting</h2>
+        <form action="/schedule" method="post">
+            <input type="text" name="title" placeholder="Meeting Title" required><br>
+            <input type="datetime-local" name="start_time" required><br>
+            <input type="datetime-local" name="end_time" required><br>
+            <input type="text" name="attendees" placeholder="Attendees (comma-separated emails)" required><br>
+            <button type="submit">Schedule</button>
+        </form>
+    </section>
+
+    <section>
+        <h2>Send a Reminder</h2>
+        <form action="/reminder" method="post">
+            <input type="text" name="message" placeholder="Reminder Message" required><br>
+            <input type="text" name="user" placeholder="User Email" required><br>
+            <input type="number" name="time_before_event" placeholder="Time Before Event (minutes)" required><br>
+            <button type="submit">Send</button>
+        </form>
+    </section>
+
+    <section>
+        <h2>Prepare Documentation</h2>
+        <form action="/document" method="post">
+            <input type="text" name="title" placeholder="Meeting Title" required><br>
+            <input type="text" name="attendees" placeholder="Attendees (comma-separated)" required><br>
+            <input type="text" name="topics_discussed" placeholder="Topics Discussed (comma-separated)" required><br>
+            <input type="text" name="action_items" placeholder="Action Items (comma-separated)" required><br>
+            <button type="submit">Prepare</button>
+        </form>
+    </section>
+
+    <section>
+        <h2>Create a Follow-Up Task</h2>
+        <form action="/followup" method="post">
+            <input type="text" name="task_id" placeholder="Task ID" required><br>
+            <input type="text" name="task_details" placeholder="Task Details" required><br>
+            <input type="date" name="due_date" required><br>
+            <button type="submit">Create</button>
+        </form>
+    </section>
 </body>
 </html>
