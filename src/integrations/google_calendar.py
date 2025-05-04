@@ -8,7 +8,7 @@ class GoogleCalendarAPI:
 
     def __init__(self):
         # Updated path to the Google service account credentials
-        credentials_path = "/Users/raquel/desktop/google-credentials.json"
+        credentials_path = "/Users/raquel/Desktop/secure-credentials/google-credentials.json"
         
         # Load service account credentials
         credentials = Credentials.from_service_account_file(credentials_path)
